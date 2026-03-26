@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+import mongoose ,{Document} from "mongoose";
+
 
 export interface IThumbnail extends Document{
     userId: string;
@@ -31,3 +32,6 @@ const ThumbnailSchema = new mongoose.Schema<IThumbnail>(
     isGenerating: {type:Boolean,default:true},
     }
 )
+const Thumbnail = mongoose.models.Thumbnail || mongoose.model<IThumbnail>("Thumbnail", ThumbnailSchema);
+
+export default Thumbnail;
