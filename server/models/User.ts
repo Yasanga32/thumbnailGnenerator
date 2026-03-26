@@ -1,6 +1,6 @@
 import mongoose, { Document } from "mongoose";
 
-export interface IUser extends Document{
+export interface IUser extends Document {
     name: string;
     email: string;
     password?: string;
@@ -9,16 +9,16 @@ export interface IUser extends Document{
 }
 
 const UserSchema = new mongoose.Schema<IUser>({
-    name: {type:String,required:true,trim:true},
+    name: { type: String, required: true, trim: true },
     email: {
-        type:String,
-        required:true,
-        trim:true,
-        unique:true,
-        lowercase:true
+        type: String,
+        required: true,
+        trim: true,
+        unique: true,
+        lowercase: true
     },
-    password:{type:String,required:true}
-},{timestamps:true})
+    password: { type: String, required: true, select: false }
+}, { timestamps: true })
 
 const User = mongoose.model<IUser>('User', UserSchema)
 

@@ -76,7 +76,7 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       isGenerating: true
     });
 
-    const model = "gemini-3-pro-image-preview";
+    const model = "gemini-3.1-flash-image-preview";
 
     const generationConfig: GenerateContentConfig = {
       maxOutputTokens: 32768,
@@ -113,20 +113,18 @@ export const generateThumbnail = async (req: Request, res: Response) => {
     let prompt = `Create a ${stylePrompts[selectedStyle as keyof typeof stylePrompts]} for: "${title}".`;
 
     if (color_scheme) {
-      prompt += ` Use a ${
-        colorSchemeDescriptions[
-          color_scheme as keyof typeof colorSchemeDescriptions
+      prompt += ` Use a ${colorSchemeDescriptions[
+        color_scheme as keyof typeof colorSchemeDescriptions
         ]
-      } color scheme.`;
+        } color scheme.`;
     }
 
     if (user_prompt) {
       prompt += ` Additional details: ${user_prompt}.`;
     }
 
-    prompt += ` The thumbnail should be ${
-      aspect_ratio || "16:9"
-    }, visually stunning, and designed to maximize click-through rate.
+    prompt += ` The thumbnail should be ${aspect_ratio || "16:9"
+      }, visually stunning, and designed to maximize click-through rate.
     Make it bold, professional, and impossible to ignore.`;
 
     // Generate image
@@ -202,20 +200,24 @@ export const generateThumbnail = async (req: Request, res: Response) => {
 
 //Controller for thumbnail deltion
 export const deleteThumbnail = async (req: Request, res: Response) => {
-    try{
-        const {id} = req.params; 
-        const {userId} = req.session;
+  try {
+    const { id } = req.params;
+    const { userId } = req.session;
 
-        await Thumbnail.findByIdAndDelete({_id:id,userId})
+    const deletedThumbnail = await Thumbnail.findOneAndDelete({ _id: id, userId })
 
-        res.json({message:'Thumbnail deleted succesfully'})
-
-
-    }catch(error:any){
-        console.log(error);
-
-        res.status(500).json({
-             message: error.message
-         });
+    if (!deletedThumbnail) {
+      return res.status(404).json({ message: "Thumbnail not found or unauthorized" })
     }
+
+    res.json({ message: 'Thumbnail deleted successfully' })
+
+
+  } catch (error: any) {
+    console.log(error);
+
+    res.status(500).json({
+      message: error.message
+    });
+  }
 }

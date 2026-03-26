@@ -7,30 +7,42 @@ import MongoStore from 'connect-mongo';
 import AuthRouter from "./routes/Auth.routes.js";
 import ThumbnailRouter from "./routes/Thumbnail.routes.js";
 import UserRouter from "./routes/User.routes.js";
+import { listModels } from "./controllers/testController.js";
 
-declare module 'express-session'{
-    interface SessionData{
-        isLoggedIn:boolean;
+declare module 'express-session' {
+    interface SessionData {
+        isLoggedIn: boolean;
         userId: string
     }
 }
 
 await connectDB()
 
+if (!process.env.SESSION_SECRET) {
+    console.error("SESSION_SECRET is missing in .env");
+    process.exit(1);
+}
+
 const app = express();
 
 // Middleware
 app.use(cors({
-    origin : ['http://localhost:5173','http://localhost:3000']
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true
 }))
 
 app.use(session({
     secret: process.env.SESSION_SECRET as string,
-    resave:false,
-    saveUninitialized:false,
-    cookie: {maxAge:1000 * 60 * 60 *24 * 7}, //7 days
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7, //7 days
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    },
     store: MongoStore.create({
-        mongoUrl:process.env.MONGODB_URL as string,
+        mongoUrl: process.env.MONGODB_URL as string,
         collectionName: 'sessions'
     })
 }))
@@ -43,9 +55,11 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Server is Live!');
 });
 
-app.use('/api/auth',AuthRouter)
-app.use('/api/thumbnail',ThumbnailRouter)
-app.use('/api/user',UserRouter)
+app.get("/models", listModels);
+
+app.use('/api/auth', AuthRouter)
+app.use('/api/thumbnail', ThumbnailRouter)
+app.use('/api/user', UserRouter)
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
