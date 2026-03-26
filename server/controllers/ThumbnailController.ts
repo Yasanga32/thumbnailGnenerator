@@ -133,9 +133,20 @@ export const generateThumbnail = async (req:Request,res:Response)=>{
         //Write the final image to the file
         fs.writeFileSync(filePath,finalBuffer!)
 
-        const uploadResult = await
+        const uploadResult = await cloudinary.uploader.upload
+        (filePath,{resource_type:'image'})
 
-    }catch(error){
+        thumbnail.image_url = uploadResult.url;
+        thumbnail.isGenerating = false;
+        await thumbnail.save();
 
+        res.json({message:'Thumbnail Generated',thumbnail})
+
+        //remove image file from disk
+        fs.unlinkSync(filePath)
+
+    }catch(error:any){
+        console.log(error)
+        res.status(500).json({message:error.message})
     }
 }
