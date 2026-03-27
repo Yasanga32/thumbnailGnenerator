@@ -23,7 +23,7 @@ export default function PreviewPanel(
   const onDownload =()=>{
     if(!thumbnail?.image_url) return;
     const link = document.createElement('a');
-    link.href = thumbnail?.image_url.replace('/upload','/upload/f1_attachment')
+    link.href = thumbnail?.image_url.replace('/upload','/upload/fl_attachment')
     document.body.appendChild(link);
     link.click()
     link.remove()

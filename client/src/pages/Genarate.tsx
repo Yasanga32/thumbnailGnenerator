@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
     colorSchemes,
@@ -99,23 +99,28 @@ function Generate() {
     }
 
 
+    // Fetch once when the id or login state changes
     useEffect(() => {
         if (isLoggedIn && id) {
             fetchThumbnail()
         }
-        if(id && loading && isLoggedIn){
-            const interval = setInterval(()=>{
-                fetchThumbnail()
-            },5000);
-            return ()=>clearInterval(interval)
-        }
-    }, [id,loading,isLoggedIn])
+    }, [id, isLoggedIn])
 
-    useEffect(()=>{
-        if(!id && thumbnail){
+    // Poll every 5s while the thumbnail is still generating
+    useEffect(() => {
+        if (id && loading && isLoggedIn) {
+            const interval = setInterval(() => {
+                fetchThumbnail()
+            }, 5000)
+            return () => clearInterval(interval)
+        }
+    }, [id, loading, isLoggedIn])
+
+    useEffect(() => {
+        if (!id && thumbnail) {
             setThumbnail(null)
         }
-    },[pathname])
+    }, [pathname])
 
 
     return (
